@@ -1,0 +1,2882 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>스터디노트 · 학습 플래너 & AI 커리큘럼</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #2B44B5;
+      --on-primary: #FFFFFF;
+      --primary-container: #DDE3FF;
+      --on-primary-container: #0A1B5C;
+      --secondary: #0F9D76;
+      --on-secondary: #FFFFFF;
+      --secondary-container: #CFF7E8;
+      --on-secondary-container: #003827;
+      --tertiary: #E8590C;
+      --tertiary-container: #FFE0CE;
+      --on-tertiary-container: #4D1A00;
+      --bg: #F6F7FB;
+      --on-bg: #141824;
+      --surface: #FFFFFF;
+      --on-surface: #141824;
+      --surface-variant: #EAEEF6;
+      --on-surface-variant: #535B6E;
+      --outline: #D3DAE8;
+      --outline-variant: #E5EAF3;
+      --error: #D9383A;
+      --error-bg: rgba(217, 56, 58, 0.11);
+      --shadow-sm: 0 2px 8px rgba(20, 24, 36, 0.04);
+      --shadow-md: 0 8px 24px rgba(20, 24, 36, 0.08);
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+      --radius-xl: 28px;
+    }
+
+    body.dark {
+      --primary: #8CA4FF;
+      --on-primary: #0E2068;
+      --primary-container: #1E328A;
+      --on-primary-container: #DDE3FF;
+      --secondary: #53DFAF;
+      --on-secondary: #003827;
+      --secondary-container: #0B5C44;
+      --on-secondary-container: #CFF7E8;
+      --tertiary: #FFA575;
+      --tertiary-container: #7A320A;
+      --on-tertiary-container: #FFE0CE;
+      --bg: #0E131D;
+      --on-bg: #E8ECF5;
+      --surface: #161D2B;
+      --on-surface: #E8ECF5;
+      --surface-variant: #222B3D;
+      --on-surface-variant: #A2ACC2;
+      --outline: #333E54;
+      --outline-variant: #232C3F;
+      --error: #FF8A8A;
+      --error-bg: rgba(255, 138, 138, 0.14);
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.25);
+      --shadow-md: 0 10px 28px rgba(0, 0, 0, 0.42);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--on-bg);
+      font-family: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      line-height: 1.45;
+      min-height: 100vh;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .app-shell {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* Desktop Side Rail */
+    .side-rail {
+      display: none;
+      width: 92px;
+      background: var(--surface);
+      border-right: 1px solid var(--outline-variant);
+      padding: 20px 8px;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex-shrink: 0;
+    }
+
+    .rail-brand {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--primary);
+      color: var(--on-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rail-btn {
+      width: 76px;
+      padding: 10px 6px;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--on-surface-variant);
+      font-size: 11px;
+      font-weight: 600;
+      transition: background 0.16s, color 0.16s;
+    }
+
+    .rail-btn.active {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+
+    .rail-btn:hover:not(.active) {
+      background: var(--surface-variant);
+    }
+
+    .main-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      align-items: center;
+    }
+
+    .top-bar {
+      width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: var(--bg);
+      border-bottom: 1px solid var(--outline-variant);
+      backdrop-filter: blur(10px);
+    }
+
+    .top-bar-inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .top-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .icon-btn {
+      min-width: 40px;
+      min-height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--on-surface-variant);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .icon-btn:hover {
+      background: var(--surface-variant);
+      color: var(--on-surface);
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--outline);
+      color: var(--on-surface);
+    }
+
+    .content-wrap {
+      width: 100%;
+      max-width: 720px;
+      padding: 14px 16px 96px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Live Banner */
+    .live-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      border: 1px solid rgba(43, 68, 181, 0.2);
+      cursor: pointer;
+    }
+
+    .live-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .pulse {
+      animation: pulseAnim 1.4s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: 0.65; }
+    }
+
+    /* Cards & Surfaces */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-muted {
+      background: var(--surface-variant);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      color: var(--on-surface-variant);
+      font-size: 13px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .section-sub {
+      font-size: 12px;
+      color: var(--on-surface-variant);
+      margin-top: 2px;
+    }
+
+    /* Buttons */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 12px;
+      background: var(--primary);
+      color: var(--on-primary);
+      font-weight: 600;
+      font-size: 14px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      opacity: 0.92;
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: scale(0.985);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 12px;
+      background: var(--secondary);
+      color: var(--on-secondary);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .btn-tonal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 12px;
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1px solid var(--outline);
+      background: var(--surface);
+      color: var(--on-surface);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .btn-text {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .btn-text:hover {
+      background: var(--primary-container);
+    }
+
+    .btn-danger-text {
+      color: var(--error);
+    }
+
+    .btn-danger-text:hover {
+      background: var(--error-bg);
+    }
+
+    .w-full { width: 100%; }
+
+    /* Hero D-Day Card (Enlarged as requested) */
+    .dday-hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      padding: 22px 20px;
+      color: #FFFFFF;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+    }
+
+    .dday-hero-empty {
+      background: linear-gradient(135deg, #2B44B5 0%, #4C6EF5 100%);
+    }
+
+    .dday-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .dday-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.22);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .dday-count {
+      font-size: 40px;
+      font-weight: 800;
+      line-height: 1.08;
+      margin-top: 10px;
+      letter-spacing: -0.02em;
+    }
+
+    .dday-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .dday-meta {
+      font-size: 13px;
+      opacity: 0.88;
+      margin-top: 4px;
+    }
+
+    .dday-chip-btn {
+      padding: 7px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Monthly Calendar */
+    .cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--on-surface-variant);
+    }
+
+    .cal-weekdays span:first-child { color: var(--error); }
+    .cal-weekdays span:last-child { color: var(--primary); }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .cal-day {
+      min-height: 52px;
+      border-radius: 12px;
+      padding: 5px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 2px;
+      position: relative;
+      transition: background 0.15s;
+    }
+
+    .cal-day:hover {
+      background: var(--surface-variant);
+    }
+
+    .cal-day.selected {
+      background: var(--primary);
+      color: var(--on-primary) !important;
+    }
+
+    .cal-day.today:not(.selected) {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      font-weight: 700;
+    }
+
+    .cal-day-num {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .cal-day.sun:not(.selected) .cal-day-num,
+    .cal-day.holiday:not(.selected) .cal-day-num {
+      color: var(--error);
+    }
+
+    .cal-day.sat:not(.selected):not(.holiday) .cal-day-num {
+      color: var(--primary);
+    }
+
+    .cal-day-study {
+      font-size: 10px;
+      font-weight: 700;
+      opacity: 0.9;
+    }
+
+    .cal-dots {
+      display: flex;
+      gap: 2px;
+      margin-top: 1px;
+    }
+
+    .cal-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+
+    /* Quick Stopwatch Entry Card on Home */
+    .home-sw-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: var(--radius-lg);
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      border: 1px solid rgba(43, 68, 181, 0.18);
+    }
+
+    .home-sw-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--on-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Todo Items */
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+    }
+
+    .todo-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      border: 2px solid var(--outline);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+
+    .todo-check.checked {
+      background: var(--secondary);
+      border-color: var(--secondary);
+      color: #fff;
+    }
+
+    .todo-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .todo-title.done {
+      text-decoration: line-through;
+      color: var(--on-surface-variant);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    /* Chips */
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--outline);
+      background: var(--surface);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .chip.selected {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      border-color: var(--primary);
+    }
+
+    /* Stopwatch Dial */
+    .dial-wrap {
+      position: relative;
+      width: 224px;
+      height: 224px;
+      margin: 18px auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dial-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .dial-center {
+      text-align: center;
+      z-index: 1;
+    }
+
+    .dial-time {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    /* Form Controls */
+    .input-field, .select-field {
+      width: 100%;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--outline);
+      background: var(--surface);
+      color: var(--on-surface);
+      font-size: 14px;
+      outline: none;
+    }
+
+    .input-field:focus, .select-field:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(43, 68, 181, 0.14);
+    }
+
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--on-surface-variant);
+      margin-bottom: 5px;
+    }
+
+    /* Subtabs for AI Coach */
+    .subtabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--surface-variant);
+      padding: 4px;
+      border-radius: 14px;
+      gap: 4px;
+    }
+
+    .subtab-btn {
+      padding: 10px 8px;
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--on-surface-variant);
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .subtab-btn.active {
+      background: var(--surface);
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Grade Row */
+    .grade-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background: var(--surface-variant);
+      flex-wrap: wrap;
+    }
+
+    .grade-selects {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .grade-select {
+      min-height: 36px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--outline);
+      background: var(--surface);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Mon-Sun Daily Grid */
+    .daily-hours-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .daily-input-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--outline);
+      background: var(--surface);
+    }
+
+    .daily-input-box label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--on-surface);
+      flex-shrink: 0;
+    }
+
+    .daily-input-box input {
+      width: 64px;
+      text-align: right;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .weekly-total-tile {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+
+    .preset-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .preset-btn {
+      padding: 8px 4px;
+      border-radius: 10px;
+      background: var(--surface-variant);
+      color: var(--on-surface-variant);
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .preset-btn.active {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+
+    /* Charts */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--outline-variant);
+      border-radius: var(--radius-md);
+      padding: 12px;
+    }
+
+    .bar-chart {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      align-items: end;
+      height: 160px;
+      padding-top: 12px;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    .bar-track {
+      flex: 1;
+      width: 24px;
+      max-width: 100%;
+      border-radius: 8px;
+      background: var(--surface-variant);
+      display: flex;
+      flex-direction: column-reverse;
+      overflow: hidden;
+    }
+
+    .bar-seg {
+      width: 100%;
+      transition: height 0.25s ease;
+    }
+
+    .bar-day-label {
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 8px;
+      color: var(--on-surface-variant);
+    }
+
+    .bar-day-label.active {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      font-weight: 700;
+    }
+
+    .proportion-bar {
+      display: flex;
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--surface-variant);
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--surface-variant);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 35;
+      background: var(--surface);
+      border-top: 1px solid var(--outline-variant);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    }
+
+    .bottom-nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 6px 4px;
+      border-radius: 12px;
+      color: var(--on-surface-variant);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .bottom-nav-btn.active {
+      color: var(--primary);
+    }
+
+    .bottom-nav-pill {
+      padding: 4px 16px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bottom-nav-btn.active .bottom-nav-pill {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+
+    /* Modal / Sheet */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(10, 14, 24, 0.56);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 500px;
+      max-height: 88vh;
+      overflow-y: auto;
+      background: var(--surface);
+      color: var(--on-surface);
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid var(--outline-variant);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .color-swatch-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+    }
+
+    .color-swatch.selected {
+      border-color: var(--on-surface);
+      transform: scale(1.1);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 84px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 70;
+      background: #1B2234;
+      color: #FFFFFF;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      max-width: calc(100vw - 32px);
+      text-align: center;
+    }
+
+    @media (min-width: 768px) {
+      .side-rail {
+        display: flex;
+      }
+      .bottom-nav {
+        display: none;
+      }
+      .content-wrap {
+        padding-bottom: 32px;
+      }
+      .modal-backdrop {
+        align-items: center;
+      }
+      .toast {
+        bottom: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="side-rail" aria-label="주 메뉴">
+      <div class="rail-brand">S</div>
+      <button class="rail-btn" data-tab="calendar" onclick="setTab('calendar')">
+        <span aria-hidden="true">📅</span><span>캘린더</span>
+      </button>
+      <button class="rail-btn" data-tab="stopwatch" onclick="setTab('stopwatch')">
+        <span aria-hidden="true">⏱️</span><span>스톱워치</span>
+      </button>
+      <button class="rail-btn" data-tab="charts" onclick="setTab('charts')">
+        <span aria-hidden="true">📊</span><span>통계</span>
+      </button>
+      <button class="rail-btn" data-tab="ai" onclick="setTab('ai')">
+        <span aria-hidden="true">✨</span><span>AI 코치</span>
+      </button>
+    </aside>
+
+    <div class="main-column">
+      <header class="top-bar">
+        <div class="top-bar-inner">
+          <div id="topBarTitle" class="top-title">스터디노트</div>
+          <div class="top-actions">
+            <button class="theme-toggle" id="themeToggleBtn" onclick="toggleDarkMode()" title="다크 모드 전환">
+              <span id="themeIcon">☀️</span>
+              <span id="themeLabel">라이트</span>
+            </button>
+            <button class="icon-btn" onclick="openModal('ddayManager')" title="D-Day 관리" aria-label="D-Day 관리">📌</button>
+            <button class="icon-btn" onclick="openModal('settings')" title="설정 및 과목 관리" aria-label="설정 및 과목 관리">⚙️</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="content-wrap" id="appContent"></main>
+    </div>
+  </div>
+
+  <nav class="bottom-nav" aria-label="하단 내비게이션">
+    <button class="bottom-nav-btn" data-tab="calendar" onclick="setTab('calendar')">
+      <span class="bottom-nav-pill">📅</span><span>캘린더</span>
+    </button>
+    <button class="bottom-nav-btn" data-tab="stopwatch" onclick="setTab('stopwatch')">
+      <span class="bottom-nav-pill">⏱️</span><span>스톱워치</span>
+    </button>
+    <button class="bottom-nav-btn" data-tab="charts" onclick="setTab('charts')">
+      <span class="bottom-nav-pill">📊</span><span>통계</span>
+    </button>
+    <button class="bottom-nav-btn" data-tab="ai" onclick="setTab('ai')">
+      <span class="bottom-nav-pill">✨</span><span>AI 코치</span>
+    </button>
+  </nav>
+
+  <div id="modalRoot"></div>
+  <div id="toastRoot"></div>
+
+  <script>
+    (function () {
+      const STORAGE_KEY = "studynote_standalone_v1";
+      const SUBJECT_PALETTE = [
+        "#3B5BDB", "#0CA678", "#F76707", "#7048E8",
+        "#E64980", "#1098AD", "#F59F00", "#5C7CFA"
+      ];
+
+      const KOREAN_HOLIDAYS = {
+        // 2025
+        "2025-01-01": "신정", "2025-01-28": "설날 연휴", "2025-01-29": "설날", "2025-01-30": "설날 연휴",
+        "2025-03-01": "삼일절", "2025-03-03": "대체공휴일", "2025-05-05": "어린이날", "2025-05-06": "대체공휴일",
+        "2025-06-03": "대통령 선거", "2025-06-06": "현충일", "2025-08-15": "광복절", "2025-10-03": "개천절",
+        "2025-10-05": "추석 연휴", "2025-10-06": "추석", "2025-10-07": "추석 연휴", "2025-10-08": "대체공휴일",
+        "2025-10-09": "한글날", "2025-12-25": "성탄절",
+        // 2026
+        "2026-01-01": "신정", "2026-02-16": "설날 연휴", "2026-02-17": "설날", "2026-02-18": "설날 연휴",
+        "2026-03-01": "삼일절", "2026-03-02": "대체공휴일", "2026-05-05": "어린이날", "2026-05-24": "부처님오신날",
+        "2026-05-25": "대체공휴일", "2026-06-03": "지방선거", "2026-06-06": "현충일", "2026-08-15": "광복절",
+        "2026-08-17": "대체공휴일", "2026-09-24": "추석 연휴", "2026-09-25": "추석", "2026-09-26": "추석 연휴",
+        "2026-10-03": "개천절", "2026-10-05": "대체공휴일", "2026-10-09": "한글날", "2026-12-25": "성탄절",
+        // 2027
+        "2027-01-01": "신정", "2027-02-06": "설날 연휴", "2027-02-07": "설날", "2027-02-08": "설날 연휴",
+        "2027-02-09": "대체공휴일", "2027-03-01": "삼일절", "2027-05-05": "어린이날", "2027-05-13": "부처님오신날",
+        "2027-06-06": "현충일", "2027-08-15": "광복절", "2027-08-16": "대체공휴일", "2027-09-14": "추석 연휴",
+        "2027-09-15": "추석", "2027-09-16": "추석 연휴", "2027-10-03": "개천절", "2027-10-04": "대체공휴일",
+        "2027-10-09": "한글날", "2027-10-11": "대체공휴일", "2027-12-25": "성탄절", "2027-12-27": "대체공휴일"
+      };
+
+      const DAY_FULL_LABELS = ["월요일", "화요일", "수요일", "목요일", "금요일", "토요일", "일요일"];
+      const DAY_SHORT_LABELS = ["일", "월", "화", "수", "목", "금", "토"];
+
+      function todayIso() {
+        const d = new Date();
+        return toIso(d.getFullYear(), d.getMonth() + 1, d.getDate());
+      }
+
+      function toIso(y, m, d) {
+        return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      }
+
+      function parseIso(iso) {
+        const [y, m, d] = iso.split("-").map(Number);
+        return new Date(y, m - 1, d);
+      }
+
+      function addDaysIso(iso, delta) {
+        const dt = parseIso(iso);
+        dt.setDate(dt.getDate() + delta);
+        return toIso(dt.getFullYear(), dt.getMonth() + 1, dt.getDate());
+      }
+
+      function diffDaysFromToday(targetIso) {
+        const t = parseIso(todayIso()).getTime();
+        const target = parseIso(targetIso).getTime();
+        return Math.round((target - t) / 86400000);
+      }
+
+      function formatKoreanDateFull(iso) {
+        const dt = parseIso(iso);
+        return `${dt.getMonth() + 1}월 ${dt.getDate()}일 (${DAY_SHORT_LABELS[dt.getDay()]})`;
+      }
+
+      function formatDurationKorean(sec) {
+        const s = Math.max(0, Math.floor(sec || 0));
+        const h = Math.floor(s / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        const rem = s % 60;
+        if (h > 0 && m > 0) return `${h}시간 ${m}분`;
+        if (h > 0) return `${h}시간`;
+        if (m > 0) return `${m}분`;
+        return `${rem}초`;
+      }
+
+      function formatStopwatchMs(ms) {
+        const totalSec = Math.floor(ms / 1000);
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        const tenths = Math.floor((ms % 1000) / 100);
+        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${tenths}`;
+      }
+
+      function formatTimeRange(endTs, durationSec) {
+        const end = new Date(endTs || Date.now());
+        const start = new Date(end.getTime() - Math.max(0, durationSec) * 1000);
+        const fmt = (d) => {
+          const h = d.getHours();
+          const m = String(d.getMinutes()).padStart(2, "0");
+          const ampm = h < 12 ? "오전" : "오후";
+          const h12 = h % 12 === 0 ? 12 : h % 12;
+          return `${ampm} ${h12}:${m}`;
+        };
+        return `${fmt(start)} ~ ${fmt(end)}`;
+      }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function defaultSubjects() {
+        return [
+          { id: 1, name: "국어", color: SUBJECT_PALETTE[0], currentGrade: null, targetGrade: null, mockCurrentGrade: null, mockTargetGrade: null },
+          { id: 2, name: "영어", color: SUBJECT_PALETTE[1], currentGrade: null, targetGrade: null, mockCurrentGrade: null, mockTargetGrade: null },
+          { id: 3, name: "수학", color: SUBJECT_PALETTE[2], currentGrade: null, targetGrade: null, mockCurrentGrade: null, mockTargetGrade: null },
+          { id: 4, name: "전공/탐구", color: SUBJECT_PALETTE[3], currentGrade: null, targetGrade: null, mockCurrentGrade: null, mockTargetGrade: null }
+        ];
+      }
+
+      function initialData() {
+        const now = new Date();
+        return {
+          darkMode: false,
+          nextId: 100,
+          subjects: defaultSubjects(),
+          todos: [],
+          sessions: [],
+          ddays: [],
+          stopwatch: {
+            selectedSubjectId: 1,
+            selectedTodoId: null,
+            isRunning: false,
+            startTimestamp: null,
+            accumulatedMs: 0
+          },
+          ai: {
+            subTab: "internal",
+            geminiApiKey: "",
+            internal: {
+              dailyHours: ["2", "2", "2", "2", "2", "4", "4"],
+              goalNote: "",
+              result: null,
+              loading: false,
+              error: null
+            },
+            mock: {
+              dailyHours: ["2", "2", "2", "2", "2", "4", "4"],
+              goalNote: "",
+              result: null,
+              loading: false,
+              error: null
+            }
+          },
+          ui: {
+            tab: "calendar",
+            calendarYear: now.getFullYear(),
+            calendarMonth: now.getMonth() + 1,
+            selectedDate: todayIso(),
+            chartInspectedDate: todayIso()
+          }
+        };
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return initialData();
+          const parsed = JSON.parse(raw);
+          const base = initialData();
+          return {
+            ...base,
+            ...parsed,
+            stopwatch: { ...base.stopwatch, ...(parsed.stopwatch || {}) },
+            ai: {
+              ...base.ai,
+              ...(parsed.ai || {}),
+              internal: { ...base.ai.internal, ...((parsed.ai && parsed.ai.internal) || {}), loading: false },
+              mock: { ...base.ai.mock, ...((parsed.ai && parsed.ai.mock) || {}), loading: false }
+            },
+            ui: { ...base.ui, ...(parsed.ui || {}), selectedDate: todayIso() }
+          };
+        } catch (e) {
+          return initialData();
+        }
+      }
+
+      let state = loadState();
+      let activeModal = null;
+      let swMemoDraft = "";
+      let toastTimer = null;
+      let tickInterval = null;
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          // Ignore quota/file restrictions gracefully
+        }
+      }
+
+      function nextUid() {
+        state.nextId = (state.nextId || 100) + 1;
+        return state.nextId;
+      }
+
+      function showToast(msg) {
+        const root = document.getElementById("toastRoot");
+        root.innerHTML = `<div class="toast">${escapeHtml(msg)}</div>`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          root.innerHTML = "";
+        }, 2500);
+      }
+
+      function getElapsedMs() {
+        if (state.stopwatch.isRunning && state.stopwatch.startTimestamp) {
+          return state.stopwatch.accumulatedMs + Math.max(0, Date.now() - state.stopwatch.startTimestamp);
+        }
+        return state.stopwatch.accumulatedMs || 0;
+      }
+
+      function syncTicker() {
+        clearInterval(tickInterval);
+        if (state.stopwatch.isRunning) {
+          tickInterval = setInterval(() => {
+            const elapsed = getElapsedMs();
+            const readout = document.getElementById("swReadout");
+            if (readout) readout.textContent = formatStopwatchMs(elapsed);
+            const bannerTime = document.getElementById("liveBannerTime");
+            if (bannerTime) bannerTime.textContent = formatStopwatchMs(elapsed);
+            const arc = document.getElementById("swProgressArc");
+            if (arc) {
+              const r = 98;
+              const circ = 2 * Math.PI * r;
+              const secFrac = (elapsed % 60000) / 60000;
+              const dashOffset = circ * (1 - (elapsed > 0 && secFrac === 0 ? 1 : secFrac));
+              arc.setAttribute("stroke-dashoffset", dashOffset.toFixed(2));
+            }
+          }, 100);
+        }
+      }
+
+      // Global Actions
+      window.setTab = function (tab) {
+        state.ui.tab = tab;
+        saveState();
+        render();
+      };
+
+      window.toggleDarkMode = function () {
+        state.darkMode = !state.darkMode;
+        saveState();
+        applyTheme();
+      };
+
+      function applyTheme() {
+        document.body.classList.toggle("dark", !!state.darkMode);
+        document.getElementById("themeIcon").textContent = state.darkMode ? "🌙" : "☀️";
+        document.getElementById("themeLabel").textContent = state.darkMode ? "다크" : "라이트";
+      }
+
+      window.prevMonth = function () {
+        let y = state.ui.calendarYear;
+        let m = state.ui.calendarMonth - 1;
+        if (m < 1) { m = 12; y--; }
+        state.ui.calendarYear = y;
+        state.ui.calendarMonth = m;
+        saveState();
+        render();
+      };
+
+      window.nextMonth = function () {
+        let y = state.ui.calendarYear;
+        let m = state.ui.calendarMonth + 1;
+        if (m > 12) { m = 1; y++; }
+        state.ui.calendarYear = y;
+        state.ui.calendarMonth = m;
+        saveState();
+        render();
+      };
+
+      window.jumpToToday = function () {
+        const t = new Date();
+        state.ui.calendarYear = t.getFullYear();
+        state.ui.calendarMonth = t.getMonth() + 1;
+        state.ui.selectedDate = todayIso();
+        saveState();
+        render();
+      };
+
+      window.selectDate = function (iso) {
+        state.ui.selectedDate = iso;
+        saveState();
+        render();
+      };
+
+      window.toggleTodo = function (id) {
+        const t = state.todos.find((x) => x.id === id);
+        if (t) {
+          t.isCompleted = !t.isCompleted;
+          saveState();
+          render();
+        }
+      };
+
+      window.deleteTodo = function (id) {
+        state.todos = state.todos.filter((x) => x.id !== id);
+        if (state.stopwatch.selectedTodoId === id) {
+          state.stopwatch.selectedTodoId = null;
+        }
+        saveState();
+        render();
+      };
+
+      window.startStopwatchForTodo = function (todoId) {
+        const todo = state.todos.find((x) => x.id === todoId);
+        if (todo) {
+          if (todo.subjectId) state.stopwatch.selectedSubjectId = todo.subjectId;
+          state.stopwatch.selectedTodoId = todo.id;
+        }
+        if (!state.stopwatch.isRunning) {
+          state.stopwatch.startTimestamp = Date.now();
+          state.stopwatch.isRunning = true;
+        }
+        state.ui.tab = "stopwatch";
+        saveState();
+        render();
+      };
+
+      window.startStopwatchDirect = function () {
+        if (!state.stopwatch.isRunning) {
+          state.stopwatch.startTimestamp = Date.now();
+          state.stopwatch.isRunning = true;
+        }
+        state.ui.tab = "stopwatch";
+        saveState();
+        render();
+      };
+
+      window.toggleStopwatch = function () {
+        if (state.stopwatch.isRunning) {
+          state.stopwatch.accumulatedMs = getElapsedMs();
+          state.stopwatch.isRunning = false;
+          state.stopwatch.startTimestamp = null;
+        } else {
+          state.stopwatch.startTimestamp = Date.now();
+          state.stopwatch.isRunning = true;
+        }
+        saveState();
+        render();
+      };
+
+      window.resetStopwatch = function () {
+        state.stopwatch.isRunning = false;
+        state.stopwatch.startTimestamp = null;
+        state.stopwatch.accumulatedMs = 0;
+        swMemoDraft = "";
+        saveState();
+        render();
+      };
+
+      window.selectSwSubject = function (id) {
+        state.stopwatch.selectedSubjectId = id;
+        saveState();
+        render();
+      };
+
+      window.selectSwTodo = function (id) {
+        state.stopwatch.selectedTodoId = id;
+        saveState();
+        render();
+      };
+
+      window.saveStopwatchSession = function () {
+        const elapsedSec = Math.floor(getElapsedMs() / 1000);
+        if (elapsedSec < 1) {
+          showToast("1초 이상 측정 후 저장할 수 있습니다.");
+          return;
+        }
+        const memoInput = document.getElementById("swMemoInput");
+        const memo = (memoInput ? memoInput.value : swMemoDraft).trim();
+        state.sessions.push({
+          id: nextUid(),
+          subjectId: state.stopwatch.selectedSubjectId || null,
+          todoId: state.stopwatch.selectedTodoId || null,
+          dateIso: todayIso(),
+          durationSeconds: elapsedSec,
+          memo: memo,
+          createdAt: Date.now()
+        });
+        state.stopwatch.isRunning = false;
+        state.stopwatch.startTimestamp = null;
+        state.stopwatch.accumulatedMs = 0;
+        swMemoDraft = "";
+        saveState();
+        showToast(`공부 기록 저장 완료 (${formatDurationKorean(elapsedSec)})`);
+        render();
+      };
+
+      window.deleteSession = function (id, summarySubjectKey) {
+        state.sessions = state.sessions.filter((s) => s.id !== id);
+        saveState();
+        showToast("공부 기록을 삭제했습니다.");
+        if (activeModal && activeModal.type === "subjectSessions") {
+          const remaining = getSubjectSummaryForDate(todayIso(), summarySubjectKey);
+          if (!remaining) {
+            closeModal();
+          } else {
+            renderModal();
+          }
+        }
+        render();
+      };
+
+      window.inspectChartDay = function (iso) {
+        state.ui.chartInspectedDate = iso;
+        saveState();
+        render();
+      };
+
+      window.setAiSubTab = function (sub) {
+        state.ai.subTab = sub;
+        saveState();
+        render();
+      };
+
+      window.updateSubjectGrade = function (subjectId, mode, field, value) {
+        const s = state.subjects.find((x) => x.id === subjectId);
+        if (!s) return;
+        const parsed = value === "" ? null : Number(value);
+        if (mode === "internal") {
+          if (field === "current") s.currentGrade = parsed;
+          else s.targetGrade = parsed;
+        } else {
+          if (field === "current") s.mockCurrentGrade = parsed;
+          else s.mockTargetGrade = parsed;
+        }
+        saveState();
+        render();
+      };
+
+      window.updateDailyHour = function (mode, idx, rawVal) {
+        let sanitized = String(rawVal || "").replace(/[^0-9.]/g, "");
+        const parts = sanitized.split(".");
+        if (parts.length > 2) sanitized = parts[0] + "." + parts[1];
+        if (parts[1] && parts[1].length > 1) sanitized = parts[0] + "." + parts[1].slice(0, 1);
+        const num = parseFloat(sanitized);
+        if (!isNaN(num) && num > 24) sanitized = "24";
+        state.ai[mode].dailyHours[idx] = sanitized;
+        saveState();
+        // Update weekly total indicator cleanly without losing input focus
+        const total = state.ai[mode].dailyHours.reduce((acc, v) => acc + Math.min(24, Math.max(0, parseFloat(v) || 0)), 0);
+        const totalEl = document.getElementById("aiWeeklyTotalLabel");
+        if (totalEl) totalEl.textContent = `${total.toFixed(1)}시간`;
+        const badgeEl = document.getElementById("aiWeeklyBadge");
+        if (badgeEl) badgeEl.textContent = total > 0 ? `주간 ${formatDurationKorean(Math.round(total * 3600))}` : "시간 입력 필요";
+        const btnEl = document.getElementById("aiGenerateBtn");
+        if (btnEl) btnEl.disabled = state.subjects.length === 0 || total <= 0 || state.ai[mode].loading;
+      };
+
+      const PRESETS = [
+        { label: "평일2·주말4", vals: ["2", "2", "2", "2", "2", "4", "4"] },
+        { label: "평일3·주말6", vals: ["3", "3", "3", "3", "3", "6", "6"] },
+        { label: "매일 3h", vals: ["3", "3", "3", "3", "3", "3", "3"] },
+        { label: "초기화", vals: ["0", "0", "0", "0", "0", "0", "0"] }
+      ];
+
+      window.applyHourPreset = function (mode, presetIdx) {
+        const preset = PRESETS[presetIdx];
+        if (!preset) return;
+        state.ai[mode].dailyHours = [...preset.vals];
+        saveState();
+        render();
+      };
+
+      window.updateGoalNote = function (mode, val) {
+        state.ai[mode].goalNote = val;
+        saveState();
+      };
+
+      window.addRecommendedTodoByIdx = function (mode, allocIdx) {
+        const alloc = state.ai[mode]?.result?.allocations?.[allocIdx];
+        if (!alloc || !alloc.sampleTodoTitle) return;
+        const subj = state.subjects.find((s) => s.name === alloc.subjectName) || null;
+        state.todos.push({
+          id: nextUid(),
+          title: alloc.sampleTodoTitle,
+          subjectId: subj ? subj.id : null,
+          dateIso: todayIso(),
+          isCompleted: false,
+          createdAt: Date.now()
+        });
+        saveState();
+        showToast(`오늘 할 일에 추가됨: ${alloc.sampleTodoTitle}`);
+      };
+
+      window.generateCurriculum = async function (mode) {
+        const cfg = state.ai[mode];
+        const dailyHours = cfg.dailyHours.map((v) => Math.min(24, Math.max(0, parseFloat(v) || 0)));
+        const totalHours = dailyHours.reduce((a, b) => a + b, 0);
+        if (state.subjects.length === 0) {
+          showToast("과목을 먼저 추가해 주세요.");
+          return;
+        }
+        if (totalHours <= 0) {
+          showToast("요일별 공부 시간을 1시간 이상 입력해 주세요.");
+          return;
+        }
+
+        cfg.loading = true;
+        cfg.error = null;
+        render();
+
+        const apiKey = (state.ai.geminiApiKey || "").trim();
+        if (apiKey) {
+          try {
+            const aiResult = await fetchGeminiCurriculum(apiKey, mode, dailyHours, cfg.goalNote);
+            cfg.result = aiResult;
+            cfg.loading = false;
+            saveState();
+            render();
+            return;
+          } catch (err) {
+            // Fall back smoothly or notify user if key failed
+            cfg.error = `Gemini API 호출 오류 (${err.message}). 기본 맞춤 설계로 결과를 표시할 수도 있습니다.`;
+          }
+        }
+
+        // Built-in smart curriculum generator (always works offline / double-clicked)
+        cfg.result = buildLocalCurriculum(mode, dailyHours, cfg.goalNote);
+        cfg.loading = false;
+        saveState();
+        render();
+      };
+
+      async function fetchGeminiCurriculum(apiKey, mode, dailyHours, goalNote) {
+        const isMock = mode === "mock";
+        const maxGrade = isMock ? 9 : 5;
+        const subjectLines = state.subjects.map((s) => {
+          const cur = (isMock ? s.mockCurrentGrade : s.currentGrade) || Math.ceil(maxGrade / 2);
+          const tgt = (isMock ? s.mockTargetGrade : s.targetGrade) || 1;
+          return `- ${s.name}: 현재 ${cur}등급 -> 목표 ${tgt}등급`;
+        }).join("\n");
+        const dayLines = DAY_FULL_LABELS.map((d, i) => `- ${d}: ${dailyHours[i]}시간`).join("\n");
+        const totalWeekly = dailyHours.reduce((a, b) => a + b, 0).toFixed(1);
+
+        const prompt = `당신은 대한민국 고등학생·수험생을 돕는 전문 학습 코치입니다.
+${isMock ? "수능 및 모의고사 9등급제(1~9등급)" : "내신 5등급제(1~5등급)"} 기준으로 주간 맞춤 커리큘럼을 JSON으로만 응답하세요.
+요일별 목표 시간:
+${dayLines}
+주간 총 시간: ${totalWeekly}시간
+과목 목록:
+${subjectLines}
+목표 메모: ${goalNote || "없음"}
+
+응답 JSON 형식:
+{
+  "overallStrategy": "string",
+  "allocations": [{"subjectName":"string","currentGrade":number,"targetGrade":number,"recommendedPercent":number,"weeklyHours":number,"focusStrategy":"string","sampleTodoTitle":"string"}],
+  "dailySchedule": [{"dayOfWeek":"월요일","targetHours":number,"slots":[{"subjectName":"string","hours":number}],"note":"string"}],
+  "weeklyTips": ["string"]
+}`;
+
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { responseMimeType: "application/json" }
+            })
+          }
+        );
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const json = await res.json();
+        const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error("빈 응답");
+        return JSON.parse(text);
+      }
+
+      function buildLocalCurriculum(mode, dailyHours, goalNote) {
+        const isMock = mode === "mock";
+        const maxGrade = isMock ? 9 : 5;
+        const totalWeekly = dailyHours.reduce((a, b) => a + b, 0);
+
+        const weighted = state.subjects.map((s) => {
+          const cur = (isMock ? s.mockCurrentGrade : s.currentGrade) || (isMock ? 5 : 3);
+          const tgt = (isMock ? s.mockTargetGrade : s.targetGrade) || 1;
+          const gap = Math.max(0, cur - tgt);
+          const ambitionBoost = tgt <= 2 ? 1.5 : tgt <= 4 ? 1.0 : 0.6;
+          const baseWeight = 2.0 + gap * 1.35 + ambitionBoost;
+          return { subject: s, cur, tgt, gap, weight: baseWeight };
+        });
+
+        const totalWeight = weighted.reduce((a, w) => a + w.weight, 0) || 1;
+        let remainPct = 100;
+        const allocations = weighted.map((w, idx) => {
+          const pct = idx === weighted.length - 1
+            ? remainPct
+            : Math.max(8, Math.round((w.weight / totalWeight) * 100));
+          remainPct -= pct;
+          const hours = Number(((totalWeekly * pct) / 100).toFixed(1));
+          const strategy = isMock
+            ? (w.gap >= 2
+                ? `${w.cur}등급에서 ${w.tgt}등급 도약을 위해 기출 문항 유형별 오답 정리와 실전 시간 배분 훈련을 집중 배치하세요.`
+                : `현재 ${w.cur}등급 실력을 바탕으로 고난도 킬러·준킬러 문항과 모의고사 실전 감각을 유지하세요.`)
+            : (w.gap >= 2
+                ? `내신 ${w.cur}등급→${w.tgt}등급 상승을 위해 교과서 핵심 개념·학교 프린트 회독과 서술형 대비 비중을 높여야 합니다.`
+                : `안정적인 ${w.tgt}등급 달성을 위해 변별력 문항과 학교 수업 필기 복습을 꾸준히 이어가세요.`);
+          const sampleTodoTitle = isMock
+            ? `${w.subject.name} 모의고사 기출 1회분 분석`
+            : `${w.subject.name} 교과서·프린트 핵심 단원 복습`;
+
+          return {
+            subjectName: w.subject.name,
+            currentGrade: w.cur,
+            targetGrade: w.tgt,
+            recommendedPercent: pct,
+            weeklyHours: hours,
+            focusStrategy: strategy,
+            sampleTodoTitle
+          };
+        });
+
+        // Sort priority subjects first for daily scheduling
+        const sortedAllocs = [...allocations].sort((a, b) => b.recommendedPercent - a.recommendedPercent);
+        const dailySchedule = DAY_FULL_LABELS.map((dayName, dayIdx) => {
+          const h = dailyHours[dayIdx];
+          if (h <= 0) {
+            return {
+              dayOfWeek: dayName,
+              targetHours: 0,
+              slots: [],
+              note: "완전 휴식 및 컨디션 회복일"
+            };
+          }
+          const slotCount = h >= 4 ? Math.min(3, sortedAllocs.length) : h >= 2 ? Math.min(2, sortedAllocs.length) : 1;
+          const chosen = [];
+          for (let i = 0; i < slotCount; i++) {
+            chosen.push(sortedAllocs[(dayIdx + i) % sortedAllocs.length]);
+          }
+          const sumPct = chosen.reduce((a, c) => a + c.recommendedPercent, 0) || 1;
+          let remainingH = h;
+          const slots = chosen.map((c, sIdx) => {
+            const slotH = sIdx === chosen.length - 1
+              ? Number(remainingH.toFixed(1))
+              : Number(Math.max(0.5, Math.round(((h * c.recommendedPercent) / sumPct) * 2) / 2).toFixed(1));
+            remainingH = Math.max(0, remainingH - slotH);
+            return { subjectName: c.subjectName, hours: slotH };
+          }).filter((x) => x.hours > 0);
+
+          const isWeekend = dayIdx >= 5;
+          const note = isWeekend
+            ? (isMock ? "주말 집중 모의고사 실전 풀이 및 주간 오답 총정리" : "주말 누적 복습 및 취약 단원 집중 보완")
+            : `${slots[0]?.subjectName || "핵심 과목"} 중심 데일리 루틴`;
+
+          return { dayOfWeek: dayName, targetHours: h, slots, note };
+        });
+
+        const topSubj = sortedAllocs[0];
+        const overallStrategy = `${isMock ? "9등급제 모의고사·수능" : "5등급제 내신"} 기준으로 주간 총 ${totalWeekly.toFixed(1)}시간을 배분했습니다. 목표 등급 격차가 큰 ${topSubj ? topSubj.subjectName : "핵심 과목"}(${topSubj ? topSubj.recommendedPercent : 30}%)에 가장 높은 비중을 두고, 요일별 가용 시간에 맞춰 집중 블록을 구성했습니다.${goalNote ? ` (메모 반영: ${goalNote})` : ""}`;
+
+        const weeklyTips = isMock
+          ? [
+              "평일에는 유형별 개념·기출 분석, 주말에는 실전 시간표에 맞춘 모의고사 풀이를 배치하세요.",
+              "스톱워치로 과목별 실제 투입 시간을 측정해 주간 비중과 비교해 보세요.",
+              "틀린 문제는 원인(개념 부족/시간 부족/실수)별로 분류해 다음 주 계획에 반영하세요."
+            ]
+          : [
+              "학교 수업 직후 15분 내로 필기 핵심을 정리하면 내신 암기 효율이 크게 올라갑니다.",
+              "목표 등급과 차이가 큰 과목은 공부가 잘 되는 시간대에 우선 배치하세요.",
+              "휴식일로 설정한 날에는 무리하지 않고 다음 날 집중력을 확보하는 것이 좋습니다."
+            ];
+
+        return { overallStrategy, allocations, dailySchedule, weeklyTips };
+      }
+
+      // Data Helpers
+      function getSubjectById(id) {
+        return state.subjects.find((s) => s.id === id) || null;
+      }
+
+      function getTodosForDate(iso) {
+        return state.todos
+          .filter((t) => t.dateIso === iso)
+          .sort((a, b) => Number(a.isCompleted) - Number(b.isCompleted) || b.createdAt - a.createdAt);
+      }
+
+      function getSessionsForDate(iso) {
+        return state.sessions
+          .filter((s) => s.dateIso === iso)
+          .sort((a, b) => b.createdAt - a.createdAt);
+      }
+
+      function getSubjectSummariesForDate(iso) {
+        const list = getSessionsForDate(iso);
+        const groups = new Map();
+        list.forEach((sess) => {
+          const key = sess.subjectId == null ? "general" : String(sess.subjectId);
+          if (!groups.has(key)) {
+            const subj = sess.subjectId ? getSubjectById(sess.subjectId) : null;
+            groups.set(key, {
+              key,
+              subjectId: sess.subjectId,
+              subjectName: subj ? subj.name : "일반 공부",
+              color: subj ? subj.color : "#7B879E",
+              totalSeconds: 0,
+              sessions: []
+            });
+          }
+          const g = groups.get(key);
+          g.totalSeconds += sess.durationSeconds;
+          g.sessions.push(sess);
+        });
+        return Array.from(groups.values()).sort((a, b) => b.totalSeconds - a.totalSeconds);
+      }
+
+      function getSubjectSummaryForDate(iso, key) {
+        return getSubjectSummariesForDate(iso).find((g) => g.key === key) || null;
+      }
+
+      function getFeaturedDDay() {
+        if (!state.ddays.length) return null;
+        return state.ddays.find((d) => d.isFeatured) || state.ddays[0];
+      }
+
+      // Modals
+      window.openModal = function (type, payload) {
+        activeModal = { type, payload };
+        renderModal();
+      };
+
+      window.closeModal = function () {
+        activeModal = null;
+        document.getElementById("modalRoot").innerHTML = "";
+      };
+
+      function renderModal() {
+        const root = document.getElementById("modalRoot");
+        if (!activeModal) {
+          root.innerHTML = "";
+          return;
+        }
+        const { type, payload } = activeModal;
+        let html = "";
+
+        if (type === "addTodo") {
+          const dateIso = payload || state.ui.selectedDate;
+          const opts = [`<option value="">과목 없음 (일반)</option>`]
+            .concat(state.subjects.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`))
+            .join("");
+          html = `
+            <div class="modal-card" onclick="event.stopPropagation()">
+              <div class="section-header">
+                <div class="section-title">할 일 추가</div>
+                <button class="btn-text" onclick="closeModal()">닫기</button>
+              </div>
+              <div class="section-sub">날짜: ${formatKoreanDateFull(dateIso)}</div>
+              <div>
+                <label class="field-label">할 일 내용</label>
+                <input id="todoTitleInput" class="input-field" placeholder="예: 미적분 기출 20문제 풀기" />
+              </div>
+              <div>
+                <label class="field-label">과목 선택</label>
+                <select id="todoSubjectSelect" class="select-field">${opts}</select>
+              </div>
+              <button class="btn-primary w-full" onclick="submitAddTodo('${dateIso}')">할 일 저장</button>
+            </div>
+          `;
+        } else if (type === "addSubject" || type === "editSubject") {
+          const isEdit = type === "editSubject";
+          const subj = isEdit ? getSubjectById(payload) : null;
+          const selectedColor = subj ? subj.color : SUBJECT_PALETTE[state.subjects.length % SUBJECT_PALETTE.length];
+          const swatches = SUBJECT_PALETTE.map((hex) => `
+            <button type="button" class="color-swatch ${hex === selectedColor ? "selected" : ""}"
+              style="background:${hex}" data-color="${hex}" onclick="pickSwatch(this)"></button>
+          `).join("");
+          html = `
+            <div class="modal-card" onclick="event.stopPropagation()">
+              <div class="section-header">
+                <div class="section-title">${isEdit ? "과목 이름 · 색상 수정" : "새 과목 추가"}</div>
+                <button class="btn-text" onclick="closeModal()">닫기</button>
+              </div>
+              <div>
+                <label class="field-label">과목명</label>
+                <input id="subjectNameInput" class="input-field" value="${isEdit && subj ? escapeHtml(subj.name) : ""}" placeholder="예: 생명과학 I, 한국사, 물리학" />
+              </div>
+              <div>
+                <label class="field-label">과목 색상</label>
+                <div class="color-swatch-row" id="swatchGroup" data-selected="${selectedColor}">
+                  ${swatches}
+                </div>
+              </div>
+              <button class="btn-primary w-full" onclick="submitSubject(${isEdit && subj ? subj.id : "null"})">${isEdit ? "수정 저장" : "과목 추가"}</button>
+            </div>
+          `;
+        } else if (type === "addDDay") {
+          const defaultDate = addDaysIso(todayIso(), 30);
+          const swatches = SUBJECT_PALETTE.map((hex, i) => `
+            <button type="button" class="color-swatch ${i === 0 ? "selected" : ""}"
+              style="background:${hex}" data-color="${hex}" onclick="pickSwatch(this)"></button>
+          `).join("");
+          html = `
+            <div class="modal-card" onclick="event.stopPropagation()">
+              <div class="section-header">
+                <div class="section-title">새 D-Day 등록</div>
+                <button class="btn-text" onclick="closeModal()">닫기</button>
+              </div>
+              <div>
+                <label class="field-label">목표 / 시험 이름</label>
+                <input id="ddayTitleInput" class="input-field" placeholder="예: 1학기 기말고사, 6월 모의평가" />
+              </div>
+              <div>
+                <label class="field-label">목표 날짜</label>
+                <input id="ddayDateInput" type="date" class="input-field" value="${defaultDate}" />
+              </div>
+              <div>
+                <label class="field-label">카드 색상</label>
+                <div class="color-swatch-row" id="swatchGroup" data-selected="${SUBJECT_PALETTE[0]}">
+                  ${swatches}
+                </div>
+              </div>
+              <button class="btn-primary w-full" onclick="submitAddDDay()">D-Day 저장</button>
+            </div>
+          `;
+        } else if (type === "ddayManager") {
+          const listHtml = state.ddays.length === 0
+            ? `<div class="card-muted">등록된 D-Day가 없습니다. 시험이나 목표 일정을 등록해 보세요.</div>`
+            : state.ddays.map((d) => {
+                const diff = diffDaysFromToday(d.targetDateIso);
+                const label = diff > 0 ? `D-${diff}` : diff === 0 ? "D-Day" : `D+${Math.abs(diff)}`;
+                return `
+                  <div class="todo-item" style="justify-content:space-between">
+                    <div style="min-width:0">
+                      <div style="display:flex;align-items:center;gap:8px">
+                        <span class="pill" style="background:${d.colorHex}22;color:${d.colorHex}">${label}</span>
+                        <strong style="font-size:14px">${escapeHtml(d.title)}</strong>
+                      </div>
+                      <div class="section-sub">${d.targetDateIso} ${d.isFeatured ? "· 홈 대표 표시 중" : ""}</div>
+                    </div>
+                    <div style="display:flex;gap:4px">
+                      ${!d.isFeatured ? `<button class="btn-text" onclick="setFeaturedDDay(${d.id})">대표 설정</button>` : ""}
+                      <button class="btn-text btn-danger-text" onclick="deleteDDay(${d.id})">삭제</button>
+                    </div>
+                  </div>
+                `;
+              }).join("");
+          html = `
+            <div class="modal-card" onclick="event.stopPropagation()">
+              <div class="section-header">
+                <div class="section-title">D-Day 관리</div>
+                <button class="btn-text" onclick="openModal('addDDay')">+ 새 D-Day</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">${listHtml}</div>
+              <button class="btn-outline w-full" onclick="closeModal()">닫기</button>
+            </div>
+          `;
+        } else if (type === "subjectSessions") {
+          const summary = getSubjectSummaryForDate(todayIso(), payload);
+          if (!summary) {
+            closeModal();
+            return;
+          }
+          const rows = summary.sessions.map((sess) => {
+            const linkedTodo = sess.todoId ? state.todos.find((t) => t.id === sess.todoId) : null;
+            return `
+              <div class="card-muted" style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+                <div>
+                  <div style="font-weight:700;color:var(--on-surface);font-size:14px">
+                    ${formatTimeRange(sess.createdAt, sess.durationSeconds)} · ${formatDurationKorean(sess.durationSeconds)}
+                  </div>
+                  ${linkedTodo ? `<div style="font-size:12px;margin-top:3px">할 일: ${escapeHtml(linkedTodo.title)}</div>` : ""}
+                  <div style="font-size:12px;margin-top:3px;color:var(--on-surface-variant)">
+                    메모: ${sess.memo ? escapeHtml(sess.memo) : "기록된 메모 없음"}
+                  </div>
+                </div>
+                <button class="btn-text btn-danger-text" onclick="deleteSession(${sess.id}, '${summary.key}')">삭제</button>
+              </div>
+            `;
+          }).join("");
+          html = `
+            <div class="modal-card" onclick="event.stopPropagation()">
+              <div class="section-header">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="dot" style="background:${summary.color}"></span>
+                  <div class="section-title">${escapeHtml(summary.subjectName)} 상세 기록</div>
+                </div>
+                <button class="btn-text" onclick="closeModal()">닫기</button>
+              </div>
+              <div class="section-sub">오늘 총 ${formatDurationKorean(summary.totalSeconds)} · ${summary.sessions.length}회 측정</div>
+              <div style="display:flex;flex-direction:column;gap:8px">${rows}</div>
+            </div>
+          `;
+        } else if (type === "settings") {
+          const subjRows = state.subjects.map((s) => `
+            <div class="todo-item" style="justify-content:space-between">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="dot" style="background:${s.color}"></span>
+                <strong style="font-size:14px">${escapeHtml(s.name)}</strong>
+              </div>
+              <div style="display:flex;gap:4px">
+                <button class="btn-text" onclick="openModal('editSubject', ${s.id})">수정</button>
+                <button class="btn-text btn-danger-text" onclick="deleteSubject(${s.id})">삭제</button>
+              </div>
+            </div>
+          `).join("");
+          html = `
+            <div class="modal-card" onclick="event.stopPropagation()">
+              <div class="section-header">
+                <div class="section-title">설정 및 과목 관리</div>
+                <button class="btn-text" onclick="closeModal()">닫기</button>
+              </div>
+              <div class="section-header">
+                <span style="font-size:14px;font-weight:700">과목 목록</span>
+                <button class="btn-text" onclick="openModal('addSubject')">+ 과목 추가</button>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                ${subjRows || '<div class="card-muted">등록된 과목이 없습니다.</div>'}
+              </div>
+              <div>
+                <label class="field-label">Gemini API 키 (선택 · 미입력 시 내장 AI 커리큘럼 엔진 사용)</label>
+                <input id="geminiKeyInput" type="password" class="input-field" value="${escapeHtml(state.ai.geminiApiKey || "")}" placeholder="AIza... (브라우저 localStorage에만 저장)" />
+                <button class="btn-tonal w-full" style="margin-top:8px" onclick="saveGeminiApiKey()">API 키 저장</button>
+              </div>
+              <button class="btn-outline w-full btn-danger-text" onclick="resetAllData()">전체 데이터 초기화</button>
+            </div>
+          `;
+        }
+
+        root.innerHTML = `<div class="modal-backdrop" onclick="closeModal()">${html}</div>`;
+      }
+
+      window.pickSwatch = function (btn) {
+        const group = btn.parentElement;
+        group.querySelectorAll(".color-swatch").forEach((el) => el.classList.remove("selected"));
+        btn.classList.add("selected");
+        group.dataset.selected = btn.dataset.color;
+      };
+
+      window.submitAddTodo = function (dateIso) {
+        const title = (document.getElementById("todoTitleInput")?.value || "").trim();
+        const subjVal = document.getElementById("todoSubjectSelect")?.value;
+        if (!title) {
+          showToast("할 일 내용을 입력해 주세요.");
+          return;
+        }
+        state.todos.push({
+          id: nextUid(),
+          title,
+          subjectId: subjVal ? Number(subjVal) : null,
+          dateIso,
+          isCompleted: false,
+          createdAt: Date.now()
+        });
+        saveState();
+        closeModal();
+        render();
+      };
+
+      window.submitSubject = function (editId) {
+        const name = (document.getElementById("subjectNameInput")?.value || "").trim();
+        const color = document.getElementById("swatchGroup")?.dataset.selected || SUBJECT_PALETTE[0];
+        if (!name) {
+          showToast("과목 이름을 입력해 주세요.");
+          return;
+        }
+        if (editId) {
+          const s = getSubjectById(editId);
+          if (s) {
+            s.name = name;
+            s.color = color;
+          }
+          showToast("과목 정보를 수정했습니다.");
+        } else {
+          const id = nextUid();
+          state.subjects.push({
+            id,
+            name,
+            color,
+            currentGrade: null,
+            targetGrade: null,
+            mockCurrentGrade: null,
+            mockTargetGrade: null
+          });
+          if (!state.stopwatch.selectedSubjectId) state.stopwatch.selectedSubjectId = id;
+          showToast(`${name} 과목을 추가했습니다.`);
+        }
+        saveState();
+        closeModal();
+        render();
+      };
+
+      window.deleteSubject = function (id) {
+        state.subjects = state.subjects.filter((s) => s.id !== id);
+        state.todos.forEach((t) => { if (t.subjectId === id) t.subjectId = null; });
+        state.sessions.forEach((s) => { if (s.subjectId === id) s.subjectId = null; });
+        if (state.stopwatch.selectedSubjectId === id) {
+          state.stopwatch.selectedSubjectId = state.subjects[0]?.id || null;
+        }
+        saveState();
+        renderModal();
+        render();
+      };
+
+      window.submitAddDDay = function () {
+        const title = (document.getElementById("ddayTitleInput")?.value || "").trim();
+        const dateIso = document.getElementById("ddayDateInput")?.value;
+        const colorHex = document.getElementById("swatchGroup")?.dataset.selected || SUBJECT_PALETTE[0];
+        if (!title || !dateIso) {
+          showToast("제목과 날짜를 모두 입력해 주세요.");
+          return;
+        }
+        state.ddays.forEach((d) => (d.isFeatured = false));
+        state.ddays.push({
+          id: nextUid(),
+          title,
+          targetDateIso: dateIso,
+          isFeatured: true,
+          colorHex
+        });
+        saveState();
+        closeModal();
+        render();
+      };
+
+      window.setFeaturedDDay = function (id) {
+        state.ddays.forEach((d) => { d.isFeatured = d.id === id; });
+        saveState();
+        renderModal();
+        render();
+      };
+
+      window.deleteDDay = function (id) {
+        state.ddays = state.ddays.filter((d) => d.id !== id);
+        if (state.ddays.length && !state.ddays.some((d) => d.isFeatured)) {
+          state.ddays[0].isFeatured = true;
+        }
+        saveState();
+        renderModal();
+        render();
+      };
+
+      window.saveGeminiApiKey = function () {
+        const val = (document.getElementById("geminiKeyInput")?.value || "").trim();
+        state.ai.geminiApiKey = val;
+        saveState();
+        showToast(val ? "Gemini API 키가 저장되었습니다." : "API 키가 비워져 기본 AI 엔진을 사용합니다.");
+      };
+
+      window.resetAllData = function () {
+        if (!confirm("모든 공부 기록, 할 일, D-Day를 초기화할까요?")) return;
+        const keepDark = state.darkMode;
+        state = initialData();
+        state.darkMode = keepDark;
+        saveState();
+        closeModal();
+        render();
+        showToast("데이터가 초기화되었습니다.");
+      };
+
+      // Renderers
+      function renderLiveBanner() {
+        const elapsed = getElapsedMs();
+        if (state.ui.tab === "stopwatch" || (!state.stopwatch.isRunning && elapsed <= 0)) return "";
+        const subj = getSubjectById(state.stopwatch.selectedSubjectId);
+        return `
+          <div class="live-banner" onclick="setTab('stopwatch')">
+            <div class="live-banner-left">
+              <span class="dot ${state.stopwatch.isRunning ? "pulse" : ""}" style="background:${subj ? subj.color : "var(--primary)"}"></span>
+              <div style="min-width:0">
+                <div style="font-size:13px;font-weight:700">${escapeHtml(subj ? subj.name : "일반 공부")} · ${state.stopwatch.isRunning ? "집중 측정 중" : "일시정지"}</div>
+                <div id="liveBannerTime" class="mono" style="font-size:15px;font-weight:700">${formatStopwatchMs(elapsed)}</div>
+              </div>
+            </div>
+            <button class="btn-primary" style="min-height:34px;padding:0 12px;font-size:12px" onclick="event.stopPropagation(); toggleStopwatch()">
+              ${state.stopwatch.isRunning ? "일시정지" : "계속"}
+            </button>
+          </div>
+        `;
+      }
+
+      function renderCalendarScreen() {
+        const today = todayIso();
+        const selected = state.ui.selectedDate;
+        const featured = getFeaturedDDay();
+
+        // 1. Enlarged Featured D-Day Hero Card
+        let ddayHtml = "";
+        if (featured) {
+          const diff = diffDaysFromToday(featured.targetDateIso);
+          const countText = diff > 0 ? `D-${diff}` : diff === 0 ? "D-DAY!" : `D+${Math.abs(diff)}`;
+          ddayHtml = `
+            <div class="dday-hero" style="background:linear-gradient(135deg, ${featured.colorHex}, ${featured.colorHex}CC)" onclick="openModal('ddayManager')">
+              <div class="dday-top">
+                <span class="dday-badge">대표 D-Day · 총 ${state.ddays.length}개</span>
+                <button class="dday-chip-btn" onclick="event.stopPropagation(); openModal('ddayManager')">관리</button>
+              </div>
+              <div class="dday-count mono">${countText}</div>
+              <div class="dday-title">${escapeHtml(featured.title)}</div>
+              <div class="dday-meta">목표일 ${featured.targetDateIso}</div>
+            </div>
+          `;
+        } else {
+          ddayHtml = `
+            <div class="dday-hero dday-hero-empty" onclick="openModal('addDDay')">
+              <div class="dday-top">
+                <span class="dday-badge">목표 D-Day</span>
+                <button class="dday-chip-btn" onclick="event.stopPropagation(); openModal('addDDay')">+ 등록</button>
+              </div>
+              <div class="dday-count">D-Day 설정</div>
+              <div class="dday-title">시험·목표 일정을 등록해 보세요</div>
+              <div class="dday-meta">홈 상단에 크게 표시되어 매일 동기부여를 줍니다</div>
+            </div>
+          `;
+        }
+
+        // 2. Monthly Calendar
+        const y = state.ui.calendarYear;
+        const m = state.ui.calendarMonth;
+        const firstDayDow = new Date(y, m - 1, 1).getDay();
+        const daysInMonth = new Date(y, m, 0).getDate();
+        const selectedTotalSec = getSessionsForDate(selected).reduce((a, b) => a + b.durationSeconds, 0);
+
+        let cells = "";
+        for (let i = 0; i < firstDayDow; i++) cells += `<div></div>`;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const iso = toIso(y, m, d);
+          const dow = (firstDayDow + d - 1) % 7;
+          const isHol = !!KOREAN_HOLIDAYS[iso];
+          const daySessions = getSessionsForDate(iso);
+          const daySec = daySessions.reduce((a, b) => a + b.durationSeconds, 0);
+          const dayTodos = getTodosForDate(iso);
+          const cls = [
+            "cal-day",
+            iso === selected ? "selected" : "",
+            iso === today ? "today" : "",
+            dow === 0 ? "sun" : "",
+            dow === 6 ? "sat" : "",
+            isHol ? "holiday" : ""
+          ].filter(Boolean).join(" ");
+          const minLabel = daySec >= 60 ? `${Math.floor(daySec / 60)}분` : daySec > 0 ? `${daySec}초` : "";
+          const todoDot = dayTodos.length ? `<span class="cal-dot" style="background:${iso === selected ? "#fff" : "var(--secondary)"}"></span>` : "";
+          const holDot = isHol ? `<span class="cal-dot" style="background:${iso === selected ? "#fff" : "var(--error)"}"></span>` : "";
+          cells += `
+            <button class="${cls}" onclick="selectDate('${iso}')" title="${isHol ? KOREAN_HOLIDAYS[iso] : iso}">
+              <span class="cal-day-num">${d}</span>
+              ${minLabel ? `<span class="cal-day-study">${minLabel}</span>` : `<div class="cal-dots">${holDot}${todoDot}</div>`}
+            </button>
+          `;
+        }
+
+        const calendarHtml = `
+          <div class="card">
+            <div class="cal-header">
+              <div style="display:flex;align-items:center;gap:6px">
+                <button class="icon-btn" onclick="prevMonth()" aria-label="이전 달">◀</button>
+                <strong style="font-size:17px">${y}년 ${m}월</strong>
+                <button class="icon-btn" onclick="nextMonth()" aria-label="다음 달">▶</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                ${selectedTotalSec > 0 ? `<span class="pill" style="background:var(--secondary-container);color:var(--on-secondary-container)">${formatDurationKorean(selectedTotalSec)}</span>` : ""}
+                <button class="btn-text" onclick="jumpToToday()">오늘</button>
+              </div>
+            </div>
+            <div class="cal-weekdays">
+              <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+            </div>
+            <div class="cal-grid">${cells}</div>
+          </div>
+        `;
+
+        // 3. Direct Stopwatch Entry Card
+        const elapsed = getElapsedMs();
+        const isActive = state.stopwatch.isRunning || elapsed > 0;
+        const activeSubj = getSubjectById(state.stopwatch.selectedSubjectId);
+        const todayStudySec = getSessionsForDate(today).reduce((a, b) => a + b.durationSeconds, 0);
+        const swCardHtml = `
+          <div class="home-sw-card">
+            <div style="display:flex;align-items:center;gap:12px;min-width:0">
+              <div class="home-sw-icon">⏱️</div>
+              <div style="min-width:0">
+                <div style="font-size:14px;font-weight:700">
+                  ${isActive ? `${escapeHtml(activeSubj ? activeSubj.name : "공부")} · ${state.stopwatch.isRunning ? "측정 중" : "일시정지"}` : "오늘 집중 스톱워치"}
+                </div>
+                <div class="${isActive ? "mono" : ""}" style="font-size:${isActive ? "16px" : "12px"};font-weight:${isActive ? "700" : "500"};opacity:0.88">
+                  ${isActive ? formatStopwatchMs(elapsed) : `오늘 누적 ${formatDurationKorean(todayStudySec)}`}
+                </div>
+              </div>
+            </div>
+            ${isActive
+              ? `<button class="btn-primary" style="min-height:38px;font-size:13px" onclick="setTab('stopwatch')">타이머 열기</button>`
+              : `<button class="btn-primary" style="min-height:38px;font-size:13px" onclick="startStopwatchDirect()">▶ 공부 시작</button>`
+            }
+          </div>
+        `;
+
+        // 4. Today / Selected Date Todos (Simple clean layout, no stopwatch records list here)
+        const todos = getTodosForDate(selected);
+        const doneCount = todos.filter((t) => t.isCompleted).length;
+        const holidayName = KOREAN_HOLIDAYS[selected];
+        const todoHeader = `
+          <div class="section-header" style="margin-top:4px">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <div class="section-title">${selected === today ? "오늘의 할 일" : `${formatKoreanDateFull(selected)} 할 일`}</div>
+              ${holidayName ? `<span class="pill" style="background:var(--error-bg);color:var(--error)">${holidayName}</span>` : ""}
+              ${todos.length ? `<span class="pill" style="background:var(--secondary-container);color:var(--on-secondary-container)">${doneCount} / ${todos.length}</span>` : ""}
+            </div>
+            <button class="btn-tonal" onclick="openModal('addTodo', '${selected}')">+ 할 일 추가</button>
+          </div>
+        `;
+
+        const todoListHtml = todos.length === 0
+          ? `
+            <div class="card" style="text-align:center;padding:24px 16px">
+              <div style="font-weight:700;font-size:15px">등록된 일정이 없습니다</div>
+              <div class="section-sub" style="margin:6px 0 14px">${formatKoreanDateFull(selected)}에 공부할 목표를 추가하고 스톱워치로 측정해 보세요</div>
+              <button class="btn-primary" onclick="openModal('addTodo', '${selected}')">할 일 추가하기</button>
+            </div>
+          `
+          : todos.map((t) => {
+              const subj = t.subjectId ? getSubjectById(t.subjectId) : null;
+              return `
+                <div class="todo-item">
+                  <button class="todo-check ${t.isCompleted ? "checked" : ""}" onclick="toggleTodo(${t.id})" aria-label="완료 체크">
+                    ${t.isCompleted ? "✓" : ""}
+                  </button>
+                  <div style="flex:1;min-width:0">
+                    <div class="todo-title ${t.isCompleted ? "done" : ""}">${escapeHtml(t.title)}</div>
+                    ${subj ? `<span class="pill" style="margin-top:4px;background:${subj.color}20;color:${subj.color}">${escapeHtml(subj.name)}</span>` : ""}
+                  </div>
+                  <button class="btn-text" onclick="startStopwatchForTodo(${t.id})" title="이 할 일로 스톱워치 시작">▶</button>
+                  <button class="btn-text btn-danger-text" onclick="deleteTodo(${t.id})" title="삭제">✕</button>
+                </div>
+              `;
+            }).join("");
+
+        return ddayHtml + calendarHtml + swCardHtml + todoHeader + todoListHtml;
+      }
+
+      function renderStopwatchScreen() {
+        const today = todayIso();
+        const selectedSubj = getSubjectById(state.stopwatch.selectedSubjectId);
+        const accent = selectedSubj ? selectedSubj.color : "var(--primary)";
+        const elapsed = getElapsedMs();
+        const hasRecorded = elapsed >= 1000;
+        const r = 98;
+        const circ = 2 * Math.PI * r;
+        const secFrac = (elapsed % 60000) / 60000;
+        const dashOffset = circ * (1 - (elapsed > 0 && secFrac === 0 ? 1 : secFrac));
+
+        const subjectChips = state.subjects.length === 0
+          ? `<div class="section-sub">과목이 없으면 '일반 공부'로 기록됩니다.</div>`
+          : `<div class="chip-row">${state.subjects.map((s) => `
+              <button class="chip ${state.stopwatch.selectedSubjectId === s.id ? "selected" : ""}" onclick="selectSwSubject(${s.id})">
+                <span class="dot" style="background:${s.color}"></span>
+                <span>${escapeHtml(s.name)}</span>
+              </button>
+            `).join("")}</div>`;
+
+        const todayTodos = getTodosForDate(today);
+        const todoChips = todayTodos.length === 0
+          ? `<div class="section-sub">오늘 등록된 할 일이 없습니다. 과목만 선택해서 바로 측정할 수 있습니다.</div>`
+          : `<div class="chip-row">
+              <button class="chip ${state.stopwatch.selectedTodoId == null ? "selected" : ""}" onclick="selectSwTodo(null)">과목 전체</button>
+              ${todayTodos.map((t) => `
+                <button class="chip ${state.stopwatch.selectedTodoId === t.id ? "selected" : ""}" onclick="selectSwTodo(${state.stopwatch.selectedTodoId === t.id ? "null" : t.id})">
+                  ${escapeHtml(t.title)}
+                </button>
+              `).join("")}
+            </div>`;
+
+        const summaries = getSubjectSummariesForDate(today);
+        const todayTotal = summaries.reduce((a, s) => a + s.totalSeconds, 0);
+        const summaryCards = summaries.length === 0
+          ? `<div class="card-muted">아직 저장된 오늘의 공부 기록이 없습니다. 측정 후 저장하면 캘린더와 통계 차트에 자동 반영됩니다.</div>`
+          : summaries.map((sum) => `
+              <button class="card" style="width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between" onclick="openModal('subjectSessions', '${sum.key}')">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span class="dot" style="background:${sum.color}"></span>
+                  <div>
+                    <div style="font-weight:700;font-size:15px">${escapeHtml(sum.subjectName)}</div>
+                    <div class="section-sub">${sum.sessions.length}회 기록 · 눌러서 시간·메모 보기</div>
+                  </div>
+                </div>
+                <strong class="mono" style="color:${sum.color};font-size:15px">${formatDurationKorean(sum.totalSeconds)}</strong>
+              </button>
+            `).join("");
+
+        return `
+          <div class="card">
+            <div class="section-header" style="margin-bottom:8px">
+              <strong style="font-size:14px">과목 선택</strong>
+              <div>
+                ${selectedSubj ? `<button class="btn-text" onclick="openModal('editSubject', ${selectedSubj.id})">✎ 이름 수정</button>` : ""}
+                <button class="btn-text" onclick="openModal('addSubject')">+ 과목 추가</button>
+              </div>
+            </div>
+            ${subjectChips}
+            <div class="section-header" style="margin-top:14px;margin-bottom:8px">
+              <strong style="font-size:14px">할 일 연동 (선택)</strong>
+              <button class="btn-text" onclick="openModal('addTodo', '${today}')">+ 오늘 할 일</button>
+            </div>
+            ${todoChips}
+          </div>
+
+          <div class="card" style="text-align:center">
+            <span class="pill" style="background:${accent}22;color:${accent}">
+              ${escapeHtml(selectedSubj ? selectedSubj.name : "일반 공부")} · ${state.stopwatch.isRunning ? "집중 측정 중" : hasRecorded ? "일시정지" : "측정 대기"}
+            </span>
+            <div class="dial-wrap">
+              <svg class="dial-svg" viewBox="0 0 220 220">
+                <circle cx="110" cy="110" r="${r}" fill="none" stroke="var(--surface-variant)" stroke-width="12" />
+                <circle id="swProgressArc" cx="110" cy="110" r="${r}" fill="none" stroke="${accent}" stroke-width="12"
+                  stroke-linecap="round" stroke-dasharray="${circ.toFixed(2)}" stroke-dashoffset="${dashOffset.toFixed(2)}" />
+              </svg>
+              <div class="dial-center">
+                <div id="swReadout" class="dial-time mono">${formatStopwatchMs(elapsed)}</div>
+                <div class="section-sub">다른 탭으로 이동해도 유지됩니다</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px">
+              <button class="btn-outline" style="flex:1" ${elapsed <= 0 && !state.stopwatch.isRunning ? "disabled" : ""} onclick="resetStopwatch()">초기화</button>
+              <button class="btn-primary" style="flex:1.7;background:${accent}" onclick="toggleStopwatch()">
+                ${state.stopwatch.isRunning ? "⏸ 일시정지" : elapsed > 0 ? "▶ 계속하기" : "▶ 공부 시작"}
+              </button>
+            </div>
+
+            ${hasRecorded ? `
+              <div style="margin-top:14px;text-align:left">
+                <label class="field-label">한 줄 메모 (선택)</label>
+                <input id="swMemoInput" class="input-field" value="${escapeHtml(swMemoDraft)}" oninput="swMemoDraft=this.value" placeholder="예: 기출 2단원 복습 완료" />
+                <button class="btn-secondary w-full" style="margin-top:10px" onclick="saveStopwatchSession()">기록 저장 및 캘린더·차트 자동 반영</button>
+              </div>
+            ` : ""}
+          </div>
+
+          <div class="section-header">
+            <div class="section-title">오늘 측정된 기록</div>
+            <strong style="color:var(--secondary);font-size:14px">총 ${formatDurationKorean(todayTotal)}</strong>
+          </div>
+          ${summaryCards}
+        `;
+      }
+
+      function renderChartsScreen() {
+        const today = todayIso();
+        const todaySec = getSessionsForDate(today).reduce((a, s) => a + s.durationSeconds, 0);
+
+        // Current week Mon~Sun
+        const todayDt = parseIso(today);
+        const mondayOffset = (todayDt.getDay() + 6) % 7;
+        const mondayIso = addDaysIso(today, -mondayOffset);
+        const weekDates = Array.from({ length: 7 }, (_, i) => addDaysIso(mondayIso, i));
+
+        const weeklyBars = weekDates.map((iso, i) => {
+          const daySess = getSessionsForDate(iso);
+          const total = daySess.reduce((a, s) => a + s.durationSeconds, 0);
+          const segMap = new Map();
+          daySess.forEach((s) => {
+            const key = s.subjectId == null ? "general" : String(s.subjectId);
+            const subj = s.subjectId ? getSubjectById(s.subjectId) : null;
+            if (!segMap.has(key)) {
+              segMap.set(key, { name: subj ? subj.name : "일반 공부", color: subj ? subj.color : "#7B879E", sec: 0 });
+            }
+            segMap.get(key).sec += s.durationSeconds;
+          });
+          return { iso, shortDay: DAY_FULL_LABELS[i][0], total, segments: Array.from(segMap.values()) };
+        });
+
+        const weeklyTotalSec = weeklyBars.reduce((a, b) => a + b.total, 0);
+        const allTimeSec = state.sessions.reduce((a, s) => a + s.durationSeconds, 0);
+        const totalTodos = state.todos.length;
+        const doneTodos = state.todos.filter((t) => t.isCompleted).length;
+        const donePct = totalTodos > 0 ? Math.round((doneTodos / totalTodos) * 100) : 0;
+
+        const kpiHtml = `
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="section-sub">오늘 공부</div>
+              <div style="font-size:15px;font-weight:800;color:var(--primary);margin-top:4px">${formatDurationKorean(todaySec)}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="section-sub">주간 누적</div>
+              <div style="font-size:15px;font-weight:800;color:var(--secondary);margin-top:4px">${formatDurationKorean(weeklyTotalSec)}</div>
+            </div>
+            <div class="kpi-card">
+              <div class="section-sub">할 일 달성</div>
+              <div style="font-size:15px;font-weight:800;color:var(--tertiary);margin-top:4px">${donePct}%</div>
+            </div>
+          </div>
+        `;
+
+        if (allTimeSec === 0 && totalTodos === 0) {
+          return kpiHtml + `
+            <div class="card" style="text-align:center;padding:28px 16px">
+              <div style="font-weight:700;font-size:16px">아직 기록된 공부 시간이 없습니다</div>
+              <div class="section-sub" style="margin:8px 0 16px">스톱워치로 공부를 측정하고 저장하면 캘린더와 차트에 자동으로 시각화됩니다</div>
+              <button class="btn-primary" onclick="setTab('stopwatch')">스톱워치로 이동</button>
+            </div>
+          `;
+        }
+
+        // Weekly Stacked Bar Chart
+        const maxBarSec = Math.max(60, ...weeklyBars.map((b) => b.total));
+        const inspectedBar = weeklyBars.find((b) => b.iso === state.ui.chartInspectedDate) || weeklyBars.find((b) => b.iso === today) || weeklyBars[0];
+        const barsHtml = weeklyBars.map((b) => {
+          const isInspected = b.iso === inspectedBar.iso;
+          const segsHtml = b.segments.map((seg) => {
+            const pct = (seg.sec / maxBarSec) * 100;
+            return `<div class="bar-seg" style="height:${pct.toFixed(2)}%;background:${seg.color}"></div>`;
+          }).join("");
+          return `
+            <div class="bar-col" onclick="inspectChartDay('${b.iso}')">
+              <div class="bar-track">${segsHtml}</div>
+              <span class="bar-day-label ${isInspected ? "active" : ""}">${b.shortDay}</span>
+            </div>
+          `;
+        }).join("");
+
+        const inspectedSegsHtml = inspectedBar.segments.length
+          ? `<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px">${inspectedBar.segments.map((seg) => `
+              <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--on-surface-variant)">
+                <span class="dot" style="width:8px;height:8px;background:${seg.color}"></span>
+                ${escapeHtml(seg.name)} ${formatDurationKorean(seg.sec)}
+              </span>
+            `).join("")}</div>`
+          : "";
+
+        const weeklyCard = `
+          <div class="card">
+            <div class="section-header">
+              <div class="section-title">주간 공부 시간 차트</div>
+              <strong style="font-size:13px;color:var(--primary)">${formatKoreanDateFull(inspectedBar.iso)} · ${formatDurationKorean(inspectedBar.total)}</strong>
+            </div>
+            <div class="bar-chart">${barsHtml}</div>
+            ${inspectedSegsHtml}
+          </div>
+        `;
+
+        // Subject Donut Chart
+        const subjectStats = state.subjects.map((s) => {
+          const sec = state.sessions.filter((x) => x.subjectId === s.id).reduce((a, b) => a + b.durationSeconds, 0);
+          const sTodos = state.todos.filter((t) => t.subjectId === s.id);
+          return {
+            name: s.name,
+            color: s.color,
+            sec,
+            totalTodos: sTodos.length,
+            doneTodos: sTodos.filter((t) => t.isCompleted).length
+          };
+        });
+        const genSec = state.sessions.filter((x) => x.subjectId == null).reduce((a, b) => a + b.durationSeconds, 0);
+        if (genSec > 0) {
+          const gTodos = state.todos.filter((t) => t.subjectId == null);
+          subjectStats.push({
+            name: "일반 공부",
+            color: "#7B879E",
+            sec: genSec,
+            totalTodos: gTodos.length,
+            doneTodos: gTodos.filter((t) => t.isCompleted).length
+          });
+        }
+
+        const activeStudySubjects = subjectStats.filter((x) => x.sec > 0);
+        let donutBody = `<div class="section-sub">스톱워치로 공부 기록을 저장하면 과목별 비중 차트가 표시됩니다.</div>`;
+        if (activeStudySubjects.length > 0 && allTimeSec > 0) {
+          const dr = 56;
+          const dCirc = 2 * Math.PI * dr;
+          let accLen = 0;
+          const arcs = activeStudySubjects.map((s) => {
+            const frac = s.sec / allTimeSec;
+            const len = frac * dCirc;
+            const arcHtml = `<circle cx="72" cy="72" r="${dr}" fill="none" stroke="${s.color}" stroke-width="20"
+              stroke-dasharray="${len.toFixed(2)} ${(dCirc - len).toFixed(2)}" stroke-dashoffset="${(-accLen).toFixed(2)}" />`;
+            accLen += len;
+            return arcHtml;
+          }).join("");
+
+          const legend = activeStudySubjects.map((s) => `
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <span class="dot" style="background:${s.color}"></span>
+                <span>${escapeHtml(s.name)}</span>
+              </div>
+              <strong style="color:${s.color}">${Math.round((s.sec / allTimeSec) * 100)}%</strong>
+            </div>
+          `).join("");
+
+          donutBody = `
+            <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+              <div style="position:relative;width:144px;height:144px;flex-shrink:0">
+                <svg viewBox="0 0 144 144" style="width:100%;height:100%;transform:rotate(-90deg)">
+                  <circle cx="72" cy="72" r="${dr}" fill="none" stroke="var(--surface-variant)" stroke-width="20" />
+                  ${arcs}
+                </svg>
+                <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">
+                  <span class="section-sub">총 누적</span>
+                  <strong class="mono" style="font-size:13px">${formatDurationKorean(allTimeSec)}</strong>
+                </div>
+              </div>
+              <div style="flex:1;min-width:160px;display:flex;flex-direction:column;gap:8px">${legend}</div>
+            </div>
+          `;
+        }
+
+        const donutCard = `
+          <div class="card">
+            <div class="section-title" style="margin-bottom:14px">과목별 공부 비중</div>
+            ${donutBody}
+          </div>
+        `;
+
+        const progressCards = subjectStats.map((item) => {
+          const pct = item.totalTodos > 0 ? Math.round((item.doneTodos / item.totalTodos) * 100) : 0;
+          return `
+            <div class="card" style="padding:14px">
+              <div class="section-header">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span class="dot" style="background:${item.color}"></span>
+                  <strong style="font-size:14px">${escapeHtml(item.name)}</strong>
+                </div>
+                <strong style="color:${item.color};font-size:13px">${formatDurationKorean(item.sec)}</strong>
+              </div>
+              <div class="section-header" style="margin-top:8px">
+                <span class="section-sub">${item.totalTodos > 0 ? `할 일 완료 ${item.doneTodos} / ${item.totalTodos}` : "등록된 할 일 없음"}</span>
+                ${item.totalTodos > 0 ? `<span class="section-sub">${pct}%</span>` : ""}
+              </div>
+              ${item.totalTodos > 0 ? `
+                <div class="progress-track" style="margin-top:6px">
+                  <div class="progress-fill" style="width:${pct}%;background:${item.color}"></div>
+                </div>
+              ` : ""}
+            </div>
+          `;
+        }).join("");
+
+        return kpiHtml + weeklyCard + donutCard + `<div class="section-title">과목별 공부 시간 · 할 일 달성 현황</div>` + progressCards;
+      }
+
+      function renderAiCoachScreen() {
+        const mode = state.ai.subTab === "mock" ? "mock" : "internal";
+        const isMock = mode === "mock";
+        const maxGrade = isMock ? 9 : 5;
+        const cfg = state.ai[mode];
+
+        const subtabsHtml = `
+          <div class="subtabs">
+            <button class="subtab-btn ${!isMock ? "active" : ""}" onclick="setAiSubTab('internal')">내신 맞춤 커리큘럼 (5등급제)</button>
+            <button class="subtab-btn ${isMock ? "active" : ""}" onclick="setAiSubTab('mock')">모의고사 맞춤 커리큘럼 (9등급제)</button>
+          </div>
+        `;
+
+        const gradeOptions = (selected) => {
+          let opts = `<option value="">미입력</option>`;
+          for (let g = 1; g <= maxGrade; g++) {
+            opts += `<option value="${g}" ${selected === g ? "selected" : ""}>${g}등급</option>`;
+          }
+          return opts;
+        };
+
+        const subjectsHtml = state.subjects.length === 0
+          ? `<div class="card-muted" style="text-align:center">등록된 과목이 없습니다. 과목을 추가하고 등급을 선택해 주세요.</div>`
+          : state.subjects.map((s) => {
+              const cur = isMock ? s.mockCurrentGrade : s.currentGrade;
+              const tgt = isMock ? s.mockTargetGrade : s.targetGrade;
+              return `
+                <div class="grade-row">
+                  <button style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px" onclick="openModal('editSubject', ${s.id})">
+                    <span class="dot" style="background:${s.color}"></span>
+                    <span>${escapeHtml(s.name)}</span>
+                    <span style="font-size:12px;color:var(--on-surface-variant)">✎</span>
+                  </button>
+                  <div class="grade-selects">
+                    <label style="font-size:11px;color:var(--on-surface-variant)">현재</label>
+                    <select class="grade-select" onchange="updateSubjectGrade(${s.id}, '${mode}', 'current', this.value)">
+                      ${gradeOptions(cur)}
+                    </select>
+                    <label style="font-size:11px;color:var(--on-surface-variant)">목표</label>
+                    <select class="grade-select" style="color:${s.color};border-color:${s.color}66" onchange="updateSubjectGrade(${s.id}, '${mode}', 'target', this.value)">
+                      ${gradeOptions(tgt)}
+                    </select>
+                  </div>
+                </div>
+              `;
+            }).join("");
+
+        const totalHours = cfg.dailyHours.reduce((a, v) => a + Math.min(24, Math.max(0, parseFloat(v) || 0)), 0);
+        const dayInputsHtml = DAY_FULL_LABELS.map((label, idx) => `
+          <div class="daily-input-box">
+            <label for="dayHour_${mode}_${idx}">${label}</label>
+            <div style="display:flex;align-items:center;gap:4px">
+              <input id="dayHour_${mode}_${idx}" class="mono" inputmode="decimal" value="${escapeHtml(cfg.dailyHours[idx])}"
+                oninput="updateDailyHour('${mode}', ${idx}, this.value)" placeholder="0" />
+              <span style="font-size:12px;color:var(--on-surface-variant)">시간</span>
+            </div>
+          </div>
+        `).join("");
+
+        const presetHtml = PRESETS.map((p, pIdx) => {
+          const isMatch = JSON.stringify(cfg.dailyHours) === JSON.stringify(p.vals);
+          return `<button class="preset-btn ${isMatch ? "active" : ""}" onclick="applyHourPreset('${mode}', ${pIdx})">${p.label}</button>`;
+        }).join("");
+
+        const inputCard = `
+          <div class="card">
+            <div class="section-header" style="margin-bottom:12px">
+              <div>
+                <div class="section-title">${isMock ? "과목별 모의고사 등급 입력 (9등급제)" : "과목별 내신 등급 입력 (5등급제)"}</div>
+                <div class="section-sub">${isMock ? "9등급제(1~9등급) 기준으로 현재·목표 등급을 선택하세요" : "5등급제(1~5등급) 기준으로 현재·목표 등급을 선택하세요"}</div>
+              </div>
+              <button class="btn-text" onclick="openModal('addSubject')">+ 과목 추가</button>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px">${subjectsHtml}</div>
+
+            <div class="section-header" style="margin-top:16px;margin-bottom:8px">
+              <div>
+                <strong style="font-size:14px">요일별 목표 공부 시간</strong>
+                <div class="section-sub">소수점 입력 가능 (예: 1.5시간, 휴식일은 0)</div>
+              </div>
+              <strong id="aiWeeklyBadge" style="font-size:12px;color:var(--primary)">
+                ${totalHours > 0 ? `주간 ${formatDurationKorean(Math.round(totalHours * 3600))}` : "시간 입력 필요"}
+              </strong>
+            </div>
+
+            <div class="daily-hours-grid">
+              ${dayInputsHtml}
+              <div class="weekly-total-tile">
+                <span style="font-size:11px;font-weight:600">주간 총 목표</span>
+                <strong id="aiWeeklyTotalLabel" class="mono" style="font-size:16px;color:var(--primary)">${totalHours.toFixed(1)}시간</strong>
+              </div>
+            </div>
+
+            <div class="preset-row">${presetHtml}</div>
+
+            <div style="margin-top:12px">
+              <label class="field-label">학습 목표 메모 (선택)</label>
+              <input class="input-field" value="${escapeHtml(cfg.goalNote)}" oninput="updateGoalNote('${mode}', this.value)"
+                placeholder="${isMock ? "예: 6월 모평 대비, 국어·수학 2등급 진입 목표" : "예: 수요일 학원 때문에 시간 적음, 수학 2등급 목표"}" />
+            </div>
+
+            <button id="aiGenerateBtn" class="btn-primary w-full" style="margin-top:14px"
+              ${cfg.loading || state.subjects.length === 0 || totalHours <= 0 ? "disabled" : ""}
+              onclick="generateCurriculum('${mode}')">
+              ✨ ${cfg.loading
+                ? (isMock ? "모의고사 요일별 커리큘럼 설계 중..." : "내신 요일별 커리큘럼 설계 중...")
+                : (isMock ? "모의고사 요일별 맞춤 커리큘럼 생성" : "내신 요일별 맞춤 커리큘럼 생성")}
+            </button>
+          </div>
+        `;
+
+        let resultHtml = "";
+        if (cfg.error) {
+          resultHtml += `<div class="card" style="background:var(--error-bg);border-color:var(--error);color:var(--error);font-size:13px">${escapeHtml(cfg.error)}</div>`;
+        }
+
+        if (!cfg.result) {
+          resultHtml += `
+            <div class="card-muted">
+              ${isMock
+                ? "과목별 모의고사 등급(1~9등급)과 월요일~일요일 공부 가능 시간을 입력하면, 모의고사·수능 대비 과목별 비중(%)과 요일별 맞춤 시간표를 설계해 줍니다."
+                : "과목별 내신 등급(1~5등급)과 월요일~일요일 공부 가능 시간을 입력하면, 과목별 비중(%)과 요일별 맞춤 시간표를 설계해 줍니다."}
+            </div>
+          `;
+        } else {
+          const r = cfg.result;
+          const totalPct = r.allocations.reduce((a, x) => a + x.recommendedPercent, 0) || 1;
+          const barSegs = r.allocations.map((a, idx) => {
+            const subj = state.subjects.find((s) => s.name === a.subjectName);
+            const col = subj ? subj.color : SUBJECT_PALETTE[idx % SUBJECT_PALETTE.length];
+            return `<div style="width:${(a.recommendedPercent / totalPct) * 100}%;background:${col}"></div>`;
+          }).join("");
+
+          const dailyCards = (r.dailySchedule || []).map((day) => {
+            const slotsHtml = (day.slots || []).map((slot, sIdx) => {
+              const subj = state.subjects.find((s) => s.name === slot.subjectName);
+              const col = subj ? subj.color : SUBJECT_PALETTE[sIdx % SUBJECT_PALETTE.length];
+              return `
+                <span class="pill" style="background:${col}1F;color:${col};border:1px solid ${col}55">
+                  <span class="dot" style="width:6px;height:6px;background:${col}"></span>
+                  ${escapeHtml(slot.subjectName)} ${Number(slot.hours).toFixed(1)}h
+                </span>
+              `;
+            }).join("");
+            return `
+              <div class="card-muted" style="padding:12px">
+                <div class="section-header">
+                  <strong style="color:var(--on-surface);font-size:14px">${escapeHtml(day.dayOfWeek)}</strong>
+                  <span class="pill" style="background:${day.targetHours > 0 ? "var(--primary-container)" : "var(--surface)"};color:${day.targetHours > 0 ? "var(--on-primary-container)" : "var(--on-surface-variant)"}">
+                    ${day.targetHours > 0 ? `${Number(day.targetHours).toFixed(1)}시간` : "휴식"}
+                  </span>
+                </div>
+                ${slotsHtml ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">${slotsHtml}</div>` : ""}
+                ${day.note ? `<div style="font-size:12px;margin-top:6px">${escapeHtml(day.note)}</div>` : ""}
+              </div>
+            `;
+          }).join("");
+
+          const allocCards = r.allocations.map((a, idx) => {
+            const subj = state.subjects.find((s) => s.name === a.subjectName);
+            const col = subj ? subj.color : SUBJECT_PALETTE[idx % SUBJECT_PALETTE.length];
+            return `
+              <div class="card" style="padding:14px">
+                <div class="section-header">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <span class="dot" style="background:${col}"></span>
+                    <strong style="font-size:15px">${escapeHtml(a.subjectName)}</strong>
+                    <span class="section-sub">${a.currentGrade}→${a.targetGrade}등급</span>
+                  </div>
+                  <span class="pill" style="background:${col}22;color:${col}">${a.recommendedPercent}% · 주 ${Number(a.weeklyHours).toFixed(1)}시간</span>
+                </div>
+                <div style="font-size:13px;color:var(--on-surface-variant);margin-top:8px">${escapeHtml(a.focusStrategy)}</div>
+                ${a.sampleTodoTitle ? `
+                  <button class="btn-tonal" style="margin-top:10px" onclick="addRecommendedTodoByIdx('${mode}', ${idx})">
+                    + 오늘 할 일 추가: ${escapeHtml(a.sampleTodoTitle)}
+                  </button>
+                ` : ""}
+              </div>
+            `;
+          }).join("");
+
+          const tipsHtml = (r.weeklyTips || []).length ? `
+            <div class="card" style="background:var(--primary-container);color:var(--on-primary-container);border:none">
+              <strong style="font-size:14px">주간 커리큘럼 운영 팁</strong>
+              <ul style="margin:8px 0 0;padding-left:18px;font-size:13px;display:flex;flex-direction:column;gap:5px">
+                ${r.weeklyTips.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}
+              </ul>
+            </div>
+          ` : "";
+
+          resultHtml += `
+            <div class="card">
+              <div class="section-title" style="margin-bottom:10px">추천 공부시간 비중</div>
+              <div class="proportion-bar">${barSegs}</div>
+              <div style="font-size:14px;margin-top:12px">${escapeHtml(r.overallStrategy)}</div>
+            </div>
+            <div class="card" style="display:flex;flex-direction:column;gap:8px">
+              <div class="section-title">요일별 맞춤 커리큘럼</div>
+              ${dailyCards}
+            </div>
+            ${allocCards}
+            ${tipsHtml}
+          `;
+        }
+
+        return subtabsHtml + inputCard + resultHtml;
+      }
+
+      function render() {
+        applyTheme();
+        const tab = state.ui.tab;
+        const titles = {
+          calendar: "스터디노트",
+          stopwatch: "집중 스톱워치",
+          charts: "학습 통계 차트",
+          ai: "AI 학습 코치"
+        };
+        document.getElementById("topBarTitle").textContent = titles[tab] || "스터디노트";
+        document.querySelectorAll("[data-tab]").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.tab === tab);
+        });
+
+        let body = renderLiveBanner();
+        if (tab === "calendar") body += renderCalendarScreen();
+        else if (tab === "stopwatch") body += renderStopwatchScreen();
+        else if (tab === "charts") body += renderChartsScreen();
+        else if (tab === "ai") body += renderAiCoachScreen();
+
+        document.getElementById("appContent").innerHTML = body;
+        syncTicker();
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>
